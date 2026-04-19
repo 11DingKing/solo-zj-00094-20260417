@@ -4,6 +4,7 @@ import { PinIcon } from "@/assets/pin-icon";
 import { CreateDate } from "@/components/elements/create-date";
 import { EllipsisWrapper } from "@/components/elements/ellipsis-wrapper";
 import { ReplyingTo } from "@/features/create-tweet";
+import { PollCard } from "@/features/polls";
 import {
   Avatar,
   LinkToProfile,
@@ -112,6 +113,11 @@ export const Tweet = ({
             )}
             {tweet?.media?.length > 0 && (
               <TweetMedia media={tweet?.media} tweetId={tweet?.id} />
+            )}
+            {tweet?.poll && tweet.poll.options && (
+              <div onClick={(e) => e.stopPropagation()}>
+                <PollCard poll={tweet.poll} tweetId={tweet.id} />
+              </div>
             )}
             {tweet?.quoted_tweet && (
               <div className={styles.quotedTweet}>

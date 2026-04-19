@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { LoadingSpinner } from "@/components/elements/loading-spinner";
 import { TryAgain } from "@/components/elements/try-again";
 import { CreateTweetWrapper, ReplyingTo } from "@/features/create-tweet";
+import { PollCard } from "@/features/polls";
 import {
   ITweet,
   Comments,
@@ -58,6 +59,10 @@ export const TweetDetails = ({
             <div className={styles.media}>
               <TweetMedia media={tweet?.media} tweetId={tweet?.id} />
             </div>
+          )}
+
+          {tweet?.poll && tweet.poll.options && (
+            <PollCard poll={tweet.poll} tweetId={tweet.id} />
           )}
 
           {tweet?.quoted_tweet && (

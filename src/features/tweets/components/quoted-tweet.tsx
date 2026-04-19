@@ -2,6 +2,7 @@ import { useRouter } from "next/navigation";
 
 import { CreateDate } from "@/components/elements/create-date";
 import { EllipsisWrapper } from "@/components/elements/ellipsis-wrapper";
+import { PollCard } from "@/features/polls";
 import {
   Avatar,
   UserModalWrapper,
@@ -66,6 +67,12 @@ export const QuotedTweet = ({ tweet }: { tweet: ITweet }) => {
         {tweet?.media?.length > 0 && (
           <div className={styles.media}>
             <TweetMedia media={tweet?.media} tweetId={tweet?.id} />
+          </div>
+        )}
+
+        {tweet?.poll && tweet.poll.options && (
+          <div onClick={(e) => e.stopPropagation()}>
+            <PollCard poll={tweet.poll} tweetId={tweet.id} />
           </div>
         )}
       </div>

@@ -1,9 +1,22 @@
-import type { Tweet, Like, Media, Retweet, Bookmark } from "@prisma/client";
+import type {
+  Tweet,
+  Like,
+  Media,
+  Retweet,
+  Bookmark,
+  Poll,
+  PollOption,
+  PollVote,
+} from "@prisma/client";
 
 import { IUser } from "@/features/profile";
 
 export interface IFeed {
   id: number;
+}
+
+export interface IPoll extends Poll {
+  options: PollOption[];
 }
 
 export interface ITweet extends Tweet {
@@ -16,6 +29,7 @@ export interface ITweet extends Tweet {
   comments: ITweet[];
   bookmarks: IBookmark[];
   pinned_by_users: IUser[];
+  poll: IPoll | null;
   _count: {
     retweets: number;
     quotes: number;

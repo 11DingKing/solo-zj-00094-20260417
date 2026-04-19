@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 
+import { ICreatePollData } from "@/features/polls/components/create-poll";
 import { useCreateTweetModal } from "@/stores/use-create-tweet-modal";
 
 import { postTweet } from "../api/post-tweet";
@@ -25,6 +26,7 @@ export const useCreateTweet = ({
       in_reply_to_screen_name,
       in_reply_to_status_id,
       quoted_tweet_id,
+      poll,
     }: {
       text: string;
       userId: string;
@@ -32,6 +34,7 @@ export const useCreateTweet = ({
       in_reply_to_screen_name?: string | null;
       in_reply_to_status_id?: string | null;
       quoted_tweet_id?: string | null;
+      poll?: ICreatePollData | null;
     }) => {
       return postTweet({
         text,
@@ -40,6 +43,7 @@ export const useCreateTweet = ({
         in_reply_to_screen_name,
         in_reply_to_status_id,
         quoted_tweet_id,
+        poll,
       });
     },
 

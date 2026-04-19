@@ -43,6 +43,16 @@ export async function GET(
 
         media: true,
 
+        poll: {
+          include: {
+            options: {
+              orderBy: {
+                id: "asc",
+              },
+            },
+          },
+        },
+
         author: {
           select: {
             id: true,

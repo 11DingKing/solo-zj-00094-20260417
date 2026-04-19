@@ -81,10 +81,29 @@ export async function GET(request: Request) {
         media: true,
         retweets: true,
 
+        poll: {
+          include: {
+            options: {
+              orderBy: {
+                id: "asc",
+              },
+            },
+          },
+        },
+
         quoted_tweet: {
           include: {
             author: true,
             media: true,
+            poll: {
+              include: {
+                options: {
+                  orderBy: {
+                    id: "asc",
+                  },
+                },
+              },
+            },
           },
         },
 
@@ -128,13 +147,17 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const { tweet } = (await request.json()) as {
+  const { tweet, poll } = (await request.json()) as {
     tweet: {
       text: string;
       author_id: string;
       in_reply_to_screen_name?: string;
       in_reply_to_status_id?: string;
       quoted_tweet_id?: string;
+    };
+    poll?: {
+      options: string[];
+      duration: 1 | 3 | 7;
     };
   };
 
@@ -158,15 +181,75 @@ export async function POST(request: Request) {
         message: "Invalid request body",
         error: zod.error.formErrors,
       },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
+  if (poll) {
+    if (!Array.isArray(poll.options) || poll.options.length < 2 || poll.options.length > 4) {
+      return NextResponse.json(
+        {
+          message: "Poll must have between 2 and 4 options",
+        },
+        { status: 400 }
+      );
+    }
+
+    const uniqueOptions = new Set(poll.options.map(o => o.trim()));
+    if (uniqueOptions.size !== poll.options.length) {
+      return NextResponse.json(
+        {
+          message: "Poll options must be unique",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (poll.options.some(o => o.trim() === "")) {
+      return NextResponse.json(
+        {
+          message: "Poll options cannot be empty",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (![1, 3, 7].includes(poll.duration)) {
+      return NextResponse.json(
+        {
+          message: "Poll duration must be 1, 3, or 7 days",
+        },
+        { status: 400 }
+      );
+    }
+  }
+
   try {
-    const created_tweet = await prisma.tweet.create({
-      data: {
-        ...tweet,
-      },
+    const created_tweet = await prisma.$transaction(async (tx) => {
+      const tweetResult = await tx.tweet.create({
+        data: {
+          ...tweet,
+        },
+      });
+
+      if (poll) {
+        const expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + poll.duration);
+
+        await tx.poll.create({
+          data: {
+            tweet_id: tweetResult.id,
+            expires_at: expiresAt,
+            options: {
+              create: poll.options.map((optionText) => ({
+                text: optionText.trim(),
+              })),
+            },
+          },
+        });
+      }
+
+      return tweetResult;
     });
 
     if (tweet.quoted_tweet_id) {
@@ -183,14 +266,25 @@ export async function POST(request: Request) {
       });
     }
 
-    return NextResponse.json(created_tweet, { status: 200 });
+    const tweetWithPoll = await prisma.tweet.findUnique({
+      where: { id: created_tweet.id },
+      include: {
+        poll: {
+          include: {
+            options: true,
+          },
+        },
+      },
+    });
+
+    return NextResponse.json(tweetWithPoll, { status: 200 });
   } catch (error: any) {
     return NextResponse.json(
       {
         message: "Something went wrong",
         error: error.message,
       },
-      { status: error.errorCode || 500 },
+      { status: error.errorCode || 500 }
     );
   }
 }

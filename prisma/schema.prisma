@@ -107,6 +107,37 @@ model Tweet {
   quoted_tweet            Tweet?     @relation("quoted_tweet", fields: [quoted_tweet_id], references: [id])
   quotes                  Tweet[]    @relation("quoted_tweet")
   pinned_by_users         User[]     @relation("pinned_tweet")
+  poll                    Poll?
+}
+
+model Poll {
+  id         String       @id @default(cuid())
+  tweet_id   String       @unique
+  expires_at DateTime
+  tweet      Tweet        @relation(fields: [tweet_id], references: [id], onDelete: Cascade)
+  options    PollOption[]
+  votes      PollVote[]
+}
+
+model PollOption {
+  id          String     @id @default(cuid())
+  poll_id     String
+  text        String
+  votes_count Int        @default(0)
+  poll        Poll       @relation(fields: [poll_id], references: [id], onDelete: Cascade)
+  votes       PollVote[]
+}
+
+model PollVote {
+  id         String     @id @default(cuid())
+  poll_id    String
+  option_id  String
+  user_id    String
+  created_at DateTime   @default(now())
+  poll       Poll       @relation(fields: [poll_id], references: [id], onDelete: Cascade)
+  option     PollOption @relation(fields: [option_id], references: [id], onDelete: Cascade)
+
+  @@unique([poll_id, user_id])
 }
 
 model Media {

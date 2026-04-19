@@ -1,6 +1,7 @@
 import axios from "axios";
 
 import { postHashtags, retrieveHashtagsFromTweet } from "@/features/explore";
+import { ICreatePollData } from "@/features/polls/components/create-poll";
 
 import { postMedia } from "./post-media";
 
@@ -11,6 +12,7 @@ export const postTweet = async ({
   in_reply_to_screen_name,
   in_reply_to_status_id,
   quoted_tweet_id,
+  poll,
 }: {
   text: string;
   files: File[];
@@ -18,6 +20,7 @@ export const postTweet = async ({
   in_reply_to_screen_name?: string | null;
   in_reply_to_status_id?: string | null;
   quoted_tweet_id?: string | null;
+  poll?: ICreatePollData | null;
 }) => {
   const tweet = {
     text,
@@ -30,10 +33,14 @@ export const postTweet = async ({
     ...(quoted_tweet_id && { quoted_tweet_id }),
   };
 
+  const requestBody: any = { tweet };
+
+  if (poll) {
+    requestBody.poll = poll;
+  }
+
   try {
-    const { data } = await axios.post(`/api/tweets`, {
-      tweet,
-    });
+    const { data } = await axios.post(`/api/tweets`, requestBody);
 
     if (files.length > 0) {
       await postMedia({ files, tweet_id: data.id });

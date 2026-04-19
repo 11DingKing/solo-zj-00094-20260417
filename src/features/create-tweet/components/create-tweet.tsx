@@ -1,4 +1,5 @@
 "use client";
+import { AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 
@@ -7,6 +8,10 @@ import { ImageIcon } from "@/assets/image-icon";
 import { LocationIcon } from "@/assets/location-icon";
 import { Button } from "@/components/elements/button";
 import { Tooltip } from "@/components/elements/tooltip";
+import {
+  ICreatePollData,
+  CreatePoll,
+} from "@/features/polls/components/create-poll";
 import { Avatar, LinkToProfile } from "@/features/profile";
 import { ITweet } from "@/features/tweets";
 
@@ -44,6 +49,8 @@ export const CreateTweet = ({
 
   const [text, setText] = useState("");
   const [chosenImages, setChosenImages] = useState<IChosenImages[]>([]);
+  const [showPoll, setShowPoll] = useState(false);
+  const [pollData, setPollData] = useState<ICreatePollData | null>(null);
 
   const mutation = useCreateTweet({
     setText,
@@ -62,6 +69,23 @@ export const CreateTweet = ({
     if (!textAreaRef.current) return;
     resizeTextarea(textAreaRef.current);
   }, [text]);
+
+  const handlePollChange = useCallback((poll: ICreatePollData | null) => {
+    setPollData(poll);
+  }, []);
+
+  const handleRemovePoll = useCallback(() => {
+    setShowPoll(false);
+    setPollData(null);
+  }, []);
+
+  const canSubmit = () => {
+    const hasText = text.trim().length > 0 && text.length <= 280;
+    const hasImages = chosenImages.length > 0;
+    const hasValidPoll = showPoll && pollData !== null;
+
+    return hasText || hasImages || hasValidPoll;
+  };
 
   if (!session) return null;
 
@@ -114,6 +138,16 @@ export const CreateTweet = ({
               <CreateTweetQuote tweet={quoted_tweet} />
             </div>
           )}
+
+          <AnimatePresence>
+            {showPoll && (
+              <CreatePoll
+                key="poll-creator"
+                onPollChange={handlePollChange}
+                onRemove={handleRemovePoll}
+              />
+            )}
+          </AnimatePresence>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -166,11 +200,20 @@ export const CreateTweet = ({
 
             {!isInspectModal && (
               <div className="hidden md:block">
-                <Tooltip text="Poll">
+                <Tooltip text={showPoll ? "Remove poll" : "Poll"}>
                   <Button
                     type="button"
-                    aria-label="Add poll"
-                    className="fill-primary-100 hover:bg-neutral-500 focus-visible:bg-neutral-500 active:bg-neutral-600"
+                    aria-label={showPoll ? "Remove poll" : "Add poll"}
+                    onClick={() => {
+                      if (showPoll) {
+                        handleRemovePoll();
+                      } else {
+                        setShowPoll(true);
+                      }
+                    }}
+                    className={`fill-primary-100 hover:bg-neutral-500 focus-visible:bg-neutral-500 active:bg-neutral-600 ${
+                      showPoll ? "bg-primary-opacity" : ""
+                    }`}
                   >
                     <PollIcon />
                   </Button>
@@ -219,15 +262,13 @@ export const CreateTweet = ({
                   in_reply_to_screen_name,
                   in_reply_to_status_id,
                   quoted_tweet_id: quoted_tweet ? quoted_tweet.id : null,
+                  poll: pollData,
                 })
               }
-              disabled={
-                (text.length === 0 || text.length > 280) &&
-                chosenImages.length === 0
-              }
+              disabled={!canSubmit() || mutation.isPending}
               className="bg-primary-100 px-[1em] py-[0.45em] text-milli font-bold hover:bg-primary-200 focus-visible:bg-primary-200 focus-visible:outline-secondary-100 active:bg-primary-300"
             >
-              Tweet
+              {mutation.isPending ? "Posting..." : "Tweet"}
             </Button>
           </div>
         </div>
