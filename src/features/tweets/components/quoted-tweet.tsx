@@ -71,7 +71,7 @@ export const QuotedTweet = ({ tweet }: { tweet: ITweet }) => {
         )}
 
         {tweet?.poll && tweet.poll.options && (
-          <div onClick={(e) => e.stopPropagation()}>
+          <div onClick={(e) => e.stopPropagation()} role="presentation">
             <PollCard poll={tweet.poll} tweetId={tweet.id} />
           </div>
         )}

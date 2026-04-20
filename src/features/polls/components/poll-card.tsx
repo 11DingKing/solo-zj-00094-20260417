@@ -1,11 +1,13 @@
 "use client";
+import type { Poll, PollOption } from "@prisma/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
 import { useState, useEffect, useCallback } from "react";
 
-import type { Poll, PollOption } from "@prisma/client";
 import { TickIcon } from "@/assets/tick-svg";
-import { castVote, useVote } from "..";
+
+import { useVote } from "..";
+
 import styles from "./styles/poll-card.module.scss";
 
 interface PollCardProps {
@@ -15,7 +17,7 @@ interface PollCardProps {
   tweetId?: string;
 }
 
-export const PollCard = ({ poll, tweetId }: PollCardProps) => {
+export const PollCard = ({ poll }: PollCardProps) => {
   const { data: session } = useSession();
   const mutation = useVote();
 
@@ -44,13 +46,6 @@ export const PollCard = ({ poll, tweetId }: PollCardProps) => {
         });
 
         if (result && result.vote) {
-          setUserVoteOptionId(result.vote.option_id);
-          setHasVoted(true);
-        } else if (
-          result &&
-          result.message === "You have already voted" &&
-          result.vote
-        ) {
           setUserVoteOptionId(result.vote.option_id);
           setHasVoted(true);
         }

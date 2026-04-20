@@ -181,36 +181,40 @@ export async function POST(request: Request) {
         message: "Invalid request body",
         error: zod.error.formErrors,
       },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   if (poll) {
-    if (!Array.isArray(poll.options) || poll.options.length < 2 || poll.options.length > 4) {
+    if (
+      !Array.isArray(poll.options) ||
+      poll.options.length < 2 ||
+      poll.options.length > 4
+    ) {
       return NextResponse.json(
         {
           message: "Poll must have between 2 and 4 options",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    const uniqueOptions = new Set(poll.options.map(o => o.trim()));
+    const uniqueOptions = new Set(poll.options.map((o) => o.trim()));
     if (uniqueOptions.size !== poll.options.length) {
       return NextResponse.json(
         {
           message: "Poll options must be unique",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    if (poll.options.some(o => o.trim() === "")) {
+    if (poll.options.some((o) => o.trim() === "")) {
       return NextResponse.json(
         {
           message: "Poll options cannot be empty",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -219,7 +223,7 @@ export async function POST(request: Request) {
         {
           message: "Poll duration must be 1, 3, or 7 days",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
   }
@@ -284,7 +288,7 @@ export async function POST(request: Request) {
         message: "Something went wrong",
         error: error.message,
       },
-      { status: error.errorCode || 500 }
+      { status: error.errorCode || 500 },
     );
   }
 }

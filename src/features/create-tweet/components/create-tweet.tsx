@@ -8,10 +8,8 @@ import { ImageIcon } from "@/assets/image-icon";
 import { LocationIcon } from "@/assets/location-icon";
 import { Button } from "@/components/elements/button";
 import { Tooltip } from "@/components/elements/tooltip";
-import {
-  ICreatePollData,
-  CreatePoll,
-} from "@/features/polls/components/create-poll";
+import { CreatePoll } from "@/features/polls";
+import type { ICreatePollData } from "@/features/polls";
 import { Avatar, LinkToProfile } from "@/features/profile";
 import { ITweet } from "@/features/tweets";
 

@@ -11,10 +11,10 @@ export interface ICreatePollData {
 
 interface CreatePollProps {
   onPollChange: (poll: ICreatePollData | null) => void;
-  onRemove: () => void;
+  onRemove?: () => void;
 }
 
-export const CreatePoll = ({ onPollChange, onRemove }: CreatePollProps) => {
+export const CreatePoll = ({ onPollChange }: CreatePollProps) => {
   const [options, setOptions] = useState<string[]>(["", ""]);
   const [duration, setDuration] = useState<1 | 3 | 7>(1);
   const [error, setError] = useState<string | null>(null);
@@ -107,7 +107,7 @@ export const CreatePoll = ({ onPollChange, onRemove }: CreatePollProps) => {
                 >
                   <svg
                     viewBox="0 0 24 24"
-                    className="h-5 w-5"
+                    className="size-5"
                     aria-hidden="true"
                   >
                     <g>
@@ -130,7 +130,7 @@ export const CreatePoll = ({ onPollChange, onRemove }: CreatePollProps) => {
           disabled={options.length >= 4}
           className={styles.addButton}
         >
-          <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+          <svg viewBox="0 0 24 24" className="size-5" aria-hidden="true">
             <g>
               <path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2z"></path>
             </g>

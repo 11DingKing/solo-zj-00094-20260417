@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 
-import { ICreatePollData } from "@/features/polls/components/create-poll";
+import type { ICreatePollData } from "@/features/polls";
 import { useCreateTweetModal } from "@/stores/use-create-tweet-modal";
 
 import { postTweet } from "../api/post-tweet";

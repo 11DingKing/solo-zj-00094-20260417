@@ -1,7 +1,7 @@
 import axios from "axios";
 
 import { postHashtags, retrieveHashtagsFromTweet } from "@/features/explore";
-import { ICreatePollData } from "@/features/polls/components/create-poll";
+import type { ICreatePollData } from "@/features/polls";
 
 import { postMedia } from "./post-media";
 

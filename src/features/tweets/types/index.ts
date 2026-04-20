@@ -6,7 +6,6 @@ import type {
   Bookmark,
   Poll,
   PollOption,
-  PollVote,
 } from "@prisma/client";
 
 import { IUser } from "@/features/profile";
